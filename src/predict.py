@@ -7,9 +7,10 @@ from model import CNNModel
 # ===== CẤU HÌNH =====
 # Đường dẫn đến file model (tương đối so với file script này)
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(CURRENT_DIR, "..", "weight", "my_cnn_model.v1.npz")
-# Đường dẫn đến folder chứa ảnh
-IMAGES_DIR = os.path.join(CURRENT_DIR, "..", "images")
+MODEL_PATH = os.path.join(CURRENT_DIR, "..", "weight", "my_cnn_model.v2.npz")
+
+# Đường dẫn đến file ảnh cần dự đoán
+IMAGE_PATH = os.path.join(CURRENT_DIR, "..", "images", "test", "0_2.png")
 
 def predict_image(image_path):
     # 1. Load Model trước
@@ -58,19 +59,6 @@ def predict_image(image_path):
 if __name__ == "__main__":
     print("=== AI PREDICTION TOOL ===")
     print(f"Model path: {MODEL_PATH}")
-    print(f"Images folder: {IMAGES_DIR}")
+    print(f"Image path: {IMAGE_PATH}")
     
-    if not os.path.exists(IMAGES_DIR):
-        print(f"Error: Images directory not found at {IMAGES_DIR}")
-        exit(1)
-
-    # Lấy danh sách file ảnh
-    image_files = [f for f in os.listdir(IMAGES_DIR) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp'))]
-    
-    if not image_files:
-        print("No images found in the images directory.")
-    else:
-        print(f"Found {len(image_files)} images. Processing...")
-        for img_file in image_files:
-            img_path = os.path.join(IMAGES_DIR, img_file)
-            predict_image(img_path)
+    predict_image(IMAGE_PATH)
