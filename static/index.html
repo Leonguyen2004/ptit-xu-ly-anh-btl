@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>License Plate Recognition</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-car-side"></i>
+                <span>LPR Tool</span>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-btn active" data-tab="detect">
+                    <i class="fas fa-camera"></i> Detection
+                </button>
+                <button class="nav-btn" data-tab="process">
+                    <i class="fas fa-magic"></i> Image Tools
+                </button>
+            </nav>
+
+            <div class="controls-panel" id="detect-controls">
+                <h3>Detection Mode</h3>
+                <div class="control-group">
+                    <label>Mode</label>
+                    <select id="detection-mode">
+                        <option value="accurate">Accurate (Slower)</option>
+                        <option value="fast">Fast</option>
+                    </select>
+                </div>
+                <button id="run-detection" class="primary-btn">
+                    <i class="fas fa-play"></i> Run Detection
+                </button>
+            </div>
+
+            <div class="controls-panel hidden" id="process-controls">
+                <h3>Image Processing</h3>
+                <div class="control-group">
+                    <label>Operation</label>
+                    <select id="proc-operation">
+                        <option value="grayscale">Grayscale</option>
+                        <option value="brightness_contrast">Brightness/Contrast</option>
+                        <option value="gaussian_blur">Gaussian Blur</option>
+                        <option value="median_blur">Median Blur</option>
+                        <option value="canny">Canny Edge</option>
+                        <option value="threshold_otsu">Otsu Threshold</option>
+                        <option value="threshold_adaptive">Adaptive Threshold</option>
+                    </select>
+                </div>
+
+                <div id="dynamic-params">
+                    <!-- Params injected by JS -->
+                </div>
+
+                <button id="run-process" class="primary-btn">
+                    <i class="fas fa-cog"></i> Process
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="upload-area">
+                    <input type="file" id="file-input" accept="image/*" hidden>
+                    <button class="upload-btn" onclick="document.getElementById('file-input').click()">
+                        <i class="fas fa-cloud-upload-alt"></i> Upload Image
+                    </button>
+                    <span id="file-name">No file chosen</span>
+                </div>
+            </header>
+
+            <div class="workspace">
+                <div class="image-container">
+                    <div class="image-wrapper original">
+                        <span class="label">Original</span>
+                        <img id="original-image" src="" alt="Upload an image">
+                        <div class="placeholder-text">
+                            <i class="fas fa-image"></i>
+                            <p>Upload an image to start</p>
+                        </div>
+                    </div>
+                    <div class="image-wrapper result">
+                        <span class="label">Result</span>
+                        <img id="result-image" src="" class="hidden">
+                        <div class="loader hidden"></div>
+                    </div>
+                </div>
+
+                <div class="results-panel hidden" id="results-panel">
+                    <h3>Recognition Results</h3>
+                    <div class="plate-info">
+                        <div class="plate-text-display">
+                            <span class="label">License Plate:</span>
+                            <h2 id="plate-text">---</h2>
+                        </div>
+                        <div class="confidence-display">
+                            <span class="label">Confidence:</span>
+                            <span id="plate-conf">0%</span>
+                        </div>
+                    </div>
+
+                    <div class="characters-grid" id="chars-grid">
+                        <!-- Characters injected by JS -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>

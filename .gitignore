@@ -1,2 +1,5 @@
 draw_image_slide/
 __pycache__
+src/character_cropper/out_chars/
+src/character_cropper/images/
+src/character_classifier/images/test/

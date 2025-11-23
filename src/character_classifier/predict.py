@@ -18,7 +18,7 @@ from model import CNNModel
 MODEL_PATH = os.path.join(os.path.dirname(CURRENT_DIR), "weight", "character_classifier.v2.npz")
 
 # Đường dẫn đến file ảnh cần dự đoán
-IMAGE_PATH = os.path.join(CURRENT_DIR, "images", "test", "0_2.png")
+IMAGE_PATH = os.path.join(CURRENT_DIR, "images", "test", "car_7_char_0.jpg")
 
 def predict_image(image_path):
     # 1. Load Model trước
