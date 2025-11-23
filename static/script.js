@@ -160,37 +160,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayDetectionResults(data) {
-        // Show processed image with box
-        resultImage.src = 'data:image/jpeg;base64,' + data.plate_crop; // Or full image if available
-        // Actually, let's show the full image with boxes if we had it, but the pipeline returns crop.
-        // Let's use the crop for now or if we want full visualization we might need to adjust API.
-        // The pipeline API returns 'plate_crop'. Let's stick to that for "Result" image in detection mode.
-        // Wait, the user might want to see the full image with the box.
-        // The API /api/detect returns full image with box. /api/pipeline returns structured data.
-        // Let's use the plate crop for the result image area for now, as it focuses on the plate.
-        
-        resultImage.src = 'data:image/jpeg;base64,' + data.plate_crop;
-        resultImage.classList.remove('hidden');
-        imageWrapperResult.classList.add('has-image');
+        // Show result image: ảnh gốc với bounding boxes quanh các ký tự
+        if (data.result_image) {
+            resultImage.src = 'data:image/jpeg;base64,' + data.result_image;
+            resultImage.classList.remove('hidden');
+            imageWrapperResult.classList.add('has-image');
+        } else {
+            // Fallback nếu không có result_image
+            console.warn('result_image not found in response');
+            resultImage.classList.add('hidden');
+        }
 
         // Show text and conf
-        document.getElementById('plate-text').textContent = data.plate_text;
+        document.getElementById('plate-text').textContent = data.plate_text || '---';
         document.getElementById('plate-conf').textContent = (data.plate_conf * 100).toFixed(1) + '%';
 
         // Show characters
         const grid = document.getElementById('chars-grid');
         grid.innerHTML = '';
         
-        data.characters.forEach(char => {
-            const card = document.createElement('div');
-            card.className = 'char-card';
-            card.innerHTML = `
-                <img src="data:image/jpeg;base64,${char.crop}">
-                <div class="char-val">${char.label}</div>
-                <div class="char-conf">${(char.conf * 100).toFixed(0)}%</div>
-            `;
-            grid.appendChild(card);
-        });
+        if (data.characters && data.characters.length > 0) {
+            data.characters.forEach(char => {
+                const card = document.createElement('div');
+                card.className = 'char-card';
+                card.innerHTML = `
+                    <img src="data:image/jpeg;base64,${char.crop}">
+                    <div class="char-val">${char.label}</div>
+                    <div class="char-conf">${(char.conf * 100).toFixed(0)}%</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
 
         resultsPanel.classList.remove('hidden');
     }

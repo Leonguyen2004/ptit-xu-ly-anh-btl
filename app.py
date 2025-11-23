@@ -5,6 +5,7 @@ import base64
 import json
 from flask import Flask, render_template, request, jsonify, send_file
 from tools.pipeline.pipeline import LPRPipeline
+from tools.leo_pipeline.leo_pipeline import LeoPipeline
 from tools.image_processing.image_processing import (
     to_grayscale, gaussian_blur, median_blur, 
     canny_edge_detection, threshold_otsu, threshold_adaptive,
@@ -13,9 +14,10 @@ from tools.image_processing.image_processing import (
 
 app = Flask(__name__, static_folder='static', template_folder='static')
 
-# Initialize Pipeline
+# Initialize Pipelines
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 pipeline = LPRPipeline(BASE_DIR)
+leo_pipeline = LeoPipeline(BASE_DIR)
 
 def decode_image(file):
     npimg = np.frombuffer(file.read(), np.uint8)
@@ -52,36 +54,21 @@ def detect():
 def run_pipeline():
     if 'image' not in request.files:
         return jsonify({'error': 'No image provided'}), 400
-        
-    mode = request.form.get('mode', 'accurate')
+    
     img = decode_image(request.files['image'])
     
     try:
-        result = pipeline.run(img, mode=mode)
+        # Xử lý ảnh bằng LeoPipeline
+        result = leo_pipeline.process(img, encode_image)
         
         if 'error' in result:
             return jsonify(result), 400
-            
-        # Format response
-        response = {
-            'plate_text': result['plate_text'],
-            'plate_conf': result['plate_conf'],
-            'plate_box': result['plate_box'],
-            'plate_crop': encode_image(result['plate_crop']),
-            'characters': []
-        }
         
-        for char in result['characters']:
-            response['characters'].append({
-                'label': char['label'],
-                'conf': char['conf'],
-                'box': char['box'],
-                'crop': encode_image(char['crop'])
-            })
-            
-        return jsonify(response)
+        return jsonify(result)
         
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/process_image', methods=['POST'])
