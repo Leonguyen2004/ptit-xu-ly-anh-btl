@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>License Plate Recognition Tool</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🚗 License Plate Recognition</h1>
+            <p>Advanced AI-powered tool for vehicle identification</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab('single')">Single Process</button>
+            <button class="tab-btn" onclick="openTab('history')">History & Reports</button>
+            <button class="tab-btn" onclick="openTab('analysis')">Image Analysis</button>
+            <button class="tab-btn" onclick="openTab('batch')">Batch Process</button>
+        </div>
+
+        <!-- Single Process Tab -->
+        <div id="single" class="tab-content active">
+            <div class="upload-section">
+                <input type="file" id="single-upload" accept="image/*" hidden>
+                <label for="single-upload" class="upload-box">
+                    <span class="icon">📷</span>
+                    <span>Click to Upload Vehicle Image</span>
+                </label>
+            </div>
+
+            <div class="controls-grid">
+                <!-- Basic Settings -->
+                <div class="control-group">
+                    <h3>⚙️ Settings</h3>
+                    <label>YOLO Confidence: <span id="conf-val">0.25</span></label>
+                    <input type="range" id="conf-slider" min="0.1" max="0.9" step="0.05" value="0.25">
+                </div>
+
+                <!-- Advanced Preprocessing -->
+                <div class="control-group">
+                    <h3>🔧 Image Enhancement</h3>
+                    <label>Brightness: <span id="bright-val">1.0</span></label>
+                    <input type="range" id="bright-slider" min="0.5" max="2.0" step="0.1" value="1.0">
+
+                    <label>Contrast: <span id="contrast-val">1.0</span></label>
+                    <input type="range" id="contrast-slider" min="0.5" max="2.0" step="0.1" value="1.0">
+
+                    <label>Rotation: <span id="rot-val">0</span>°</label>
+                    <input type="range" id="rot-slider" min="-180" max="180" step="90" value="0">
+                </div>
+            </div>
+
+            <div id="single-loading" class="loading hidden">Processing...</div>
+
+            <div id="single-result" class="result-section hidden">
+                <div class="result-grid">
+                    <div class="card">
+                        <h3>Annotated Image</h3>
+                        <img id="result-img" src="" alt="Result">
+                    </div>
+                    <div class="card">
+                        <h3>License Plate</h3>
+                        <div class="plate-number" id="plate-text">--</div>
+                    </div>
+                </div>
+
+                <div class="debug-section">
+                    <h3>Character Analysis</h3>
+                    <div id="debug-grid" class="debug-grid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div id="history" class="tab-content">
+            <div class="history-controls">
+                <button class="action-btn" onclick="loadHistory()">🔄 Refresh</button>
+                <a href="/api/export" class="action-btn primary" target="_blank">📥 Export to CSV</a>
+            </div>
+            <table class="result-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Time</th>
+                        <th>Plate Number</th>
+                        <th>Filename</th>
+                    </tr>
+                </thead>
+                <tbody id="history-table-body"></tbody>
+            </table>
+        </div>
+
+        <!-- Analysis Tab -->
+        <div id="analysis" class="tab-content">
+            <div class="upload-section">
+                <input type="file" id="analysis-upload" accept="image/*" hidden>
+                <label for="analysis-upload" class="upload-box">
+                    <span class="icon">🔬</span>
+                    <span>Upload for Academic Analysis</span>
+                </label>
+            </div>
+
+            <div id="analysis-loading" class="loading hidden">Analyzing...</div>
+
+            <div id="analysis-result" class="analysis-grid hidden">
+                <div class="card">
+                    <h3>Original</h3>
+                    <img id="an-original" src="">
+                </div>
+                <div class="card">
+                    <h3>Grayscale</h3>
+                    <img id="an-gray" src="">
+                </div>
+                <div class="card">
+                    <h3>Gaussian Blur</h3>
+                    <img id="an-blur" src="">
+                </div>
+                <div class="card">
+                    <h3>Canny Edges</h3>
+                    <img id="an-edges" src="">
+                </div>
+                <div class="card">
+                    <h3>Histogram Equalization</h3>
+                    <img id="an-equalized" src="">
+                </div>
+                <div class="card">
+                    <h3>Otsu Thresholding</h3>
+                    <img id="an-threshold" src="">
+                </div>
+                <div class="card">
+                    <h3>Morphology (Dilation)</h3>
+                    <img id="an-morphology" src="">
+                </div>
+            </div>
+        </div>
+
+        <!-- Batch Process Tab -->
+        <div id="batch" class="tab-content">
+            <div class="upload-section">
+                <input type="file" id="batch-upload" accept="image/*" multiple hidden>
+                <label for="batch-upload" class="upload-box">
+                    <span class="icon">📚</span>
+                    <span>Upload Multiple Images</span>
+                </label>
+            </div>
+
+            <div id="batch-loading" class="loading hidden">Processing Batch...</div>
+
+            <div id="batch-result" class="hidden">
+                <table class="result-table">
+                    <thead>
+                        <tr>
+                            <th>Filename</th>
+                            <th>Status</th>
+                            <th>Recognized Text</th>
+                        </tr>
+                    </thead>
+                    <tbody id="batch-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>
