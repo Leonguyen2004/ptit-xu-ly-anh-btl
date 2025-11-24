@@ -4,7 +4,6 @@ import numpy as np
 import base64
 import json
 from flask import Flask, render_template, request, jsonify, send_file
-from tools.pipeline.pipeline import LPRPipeline
 from tools.leo_pipeline.leo_pipeline import LeoPipeline
 from tools.image_processing.image_processing import (
     to_grayscale, gaussian_blur, median_blur, 
@@ -16,7 +15,6 @@ app = Flask(__name__, static_folder='static', template_folder='static')
 
 # Initialize Pipelines
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-pipeline = LPRPipeline(BASE_DIR)
 leo_pipeline = LeoPipeline(BASE_DIR)
 
 def decode_image(file):
