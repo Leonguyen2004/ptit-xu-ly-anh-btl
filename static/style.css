@@ -298,6 +298,70 @@ input {
     color: var(--text-secondary);
 }
 
+/* Editable Character Label Input */
+.char-label-input {
+    width: 100%;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    border: 2px solid transparent;
+    background: rgba(79, 70, 229, 0.05);
+    color: var(--text-primary);
+    padding: 0.25rem;
+    border-radius: 0.375rem;
+    transition: all 0.3s ease;
+    font-family: 'Courier New', monospace;
+}
+
+.char-label-input:hover {
+    background: rgba(79, 70, 229, 0.1);
+    border-color: rgba(79, 70, 229, 0.2);
+}
+
+.char-label-input:focus {
+    border-color: var(--primary-color);
+    background: rgba(79, 70, 229, 0.15);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* Save Button Styling */
+.save-btn {
+    margin-left: auto;
+    background: linear-gradient(135deg, var(--success-color), #059669);
+    transition: all 0.3s ease;
+}
+
+.save-btn:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.save-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Saved State Animation */
+.char-card.saved {
+    animation: saveFlash 0.6s ease;
+}
+
+@keyframes saveFlash {
+
+    0%,
+    100% {
+        background-color: #f8fafc;
+    }
+
+    50% {
+        background-color: #d1fae5;
+        border-color: var(--success-color);
+    }
+}
+
 /* Utilities */
 .hidden {
     display: none !important;

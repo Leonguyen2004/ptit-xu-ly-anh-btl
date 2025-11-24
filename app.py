@@ -111,5 +111,89 @@ def process_image():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/save_characters', methods=['POST'])
+def save_characters():
+    """
+    Lưu các ký tự đã được chỉnh sửa label vào thư mục local.
+    
+    Request body (JSON):
+    {
+        "characters": [
+            {
+                "label": "A",
+                "crop": "base64_encoded_image"
+            },
+            ...
+        ]
+    }
+    
+    Response:
+    {
+        "success": true,
+        "saved_count": 8,
+        "message": "Saved 8 characters successfully"
+    }
+    """
+    try:
+        data = request.get_json()
+        
+        if not data or 'characters' not in data:
+            return jsonify({'error': 'No characters data provided'}), 400
+        
+        characters = data['characters']
+        
+        if not characters:
+            return jsonify({'error': 'Characters list is empty'}), 400
+        
+        # Tạo thư mục images nếu chưa tồn tại
+        images_dir = os.path.join(BASE_DIR, 'images')
+        os.makedirs(images_dir, exist_ok=True)
+        
+        saved_count = 0
+        timestamp = int(os.path.getmtime(__file__) * 1000)  # Use current timestamp
+        
+        for idx, char_data in enumerate(characters):
+            label = char_data.get('label', '').strip()
+            crop_base64 = char_data.get('crop', '')
+            
+            if not label or not crop_base64:
+                continue
+            
+            # Tạo thư mục cho label nếu chưa tồn tại
+            label_dir = os.path.join(images_dir, label)
+            os.makedirs(label_dir, exist_ok=True)
+            
+            # Decode base64 image
+            try:
+                img_data = base64.b64decode(crop_base64)
+                nparr = np.frombuffer(img_data, np.uint8)
+                img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                
+                if img is None:
+                    continue
+                
+                # Tạo tên file unique: {timestamp}_{index}.jpg
+                filename = f"{timestamp}_{idx}.jpg"
+                filepath = os.path.join(label_dir, filename)
+                
+                # Lưu ảnh
+                cv2.imwrite(filepath, img)
+                saved_count += 1
+                
+            except Exception as e:
+                print(f"Error saving character {idx}: {e}")
+                continue
+        
+        return jsonify({
+            'success': True,
+            'saved_count': saved_count,
+            'message': f'Saved {saved_count} characters successfully'
+        })
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

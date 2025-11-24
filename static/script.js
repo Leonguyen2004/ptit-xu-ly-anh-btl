@@ -40,6 +40,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial setup
     updateDynamicParams();
 
+    // Save Characters functionality
+    document.addEventListener('click', (e) => {
+        if (e.target.id === 'save-characters-btn' || e.target.closest('#save-characters-btn')) {
+            saveCharacters();
+        }
+    });
+
     // Functions
     function handleFileUpload(e) {
         const file = e.target.files[0];
@@ -175,21 +182,25 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('plate-text').textContent = data.plate_text || '---';
         document.getElementById('plate-conf').textContent = (data.plate_conf * 100).toFixed(1) + '%';
 
-        // Show characters
+        // Show characters with editable labels
         const grid = document.getElementById('chars-grid');
         grid.innerHTML = '';
         
         if (data.characters && data.characters.length > 0) {
-            data.characters.forEach(char => {
+            data.characters.forEach((char, idx) => {
                 const card = document.createElement('div');
                 card.className = 'char-card';
+                card.dataset.index = idx;
                 card.innerHTML = `
-                    <img src="data:image/jpeg;base64,${char.crop}">
-                    <div class="char-val">${char.label}</div>
+                    <img src="data:image/jpeg;base64,${char.crop}" alt="Character ${idx}">
+                    <input type="text" class="char-label-input" value="${char.label}" maxlength="3" data-original="${char.label}">
                     <div class="char-conf">${(char.conf * 100).toFixed(0)}%</div>
                 `;
                 grid.appendChild(card);
             });
+            
+            // Store character data for saving later
+            grid.dataset.characters = JSON.stringify(data.characters);
         }
 
         resultsPanel.classList.remove('hidden');
@@ -240,5 +251,72 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             dynamicParamsContainer.appendChild(div);
         });
+    }
+
+    async function saveCharacters() {
+        const grid = document.getElementById('chars-grid');
+        const cards = grid.querySelectorAll('.char-card');
+        
+        if (cards.length === 0) {
+            alert('No characters to save');
+            return;
+        }
+
+        // Collect character data with edited labels
+        const charactersData = JSON.parse(grid.dataset.characters || '[]');
+        const characters = [];
+        
+        cards.forEach((card, idx) => {
+            const input = card.querySelector('.char-label-input');
+            const label = input.value.trim();
+            
+            if (label && charactersData[idx]) {
+                characters.push({
+                    label: label,
+                    crop: charactersData[idx].crop
+                });
+            }
+        });
+
+        if (characters.length === 0) {
+            alert('No valid characters to save');
+            return;
+        }
+
+        // Show loading state
+        const saveBtn = document.getElementById('save-characters-btn');
+        const originalText = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        saveBtn.disabled = true;
+
+        try {
+            const response = await fetch('/api/save_characters', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ characters })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(`✓ ${data.message}`);
+                // Optionally highlight saved characters
+                cards.forEach(card => {
+                    card.classList.add('saved');
+                    setTimeout(() => card.classList.remove('saved'), 2000);
+                });
+            } else {
+                alert('Error: ' + (data.error || 'Failed to save characters'));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while saving characters');
+        } finally {
+            // Restore button state
+            saveBtn.innerHTML = originalText;
+            saveBtn.disabled = false;
+        }
     }
 });
