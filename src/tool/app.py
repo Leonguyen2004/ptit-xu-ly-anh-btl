@@ -1,8 +1,13 @@
 import os
+import sys
 import cv2
 import numpy as np
 import base64
 import json
+
+# Add current directory to sys.path to allow importing from tools subdirectory
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 from flask import Flask, render_template, request, jsonify, send_file
 from tools.leo_pipeline.leo_pipeline import LeoPipeline
 from tools.image_processing.image_processing import (
@@ -14,7 +19,8 @@ from tools.image_processing.image_processing import (
 app = Flask(__name__, static_folder='static', template_folder='static')
 
 # Initialize Pipelines
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# BASE_DIR should point to project root (go up 2 levels: tool -> src -> root)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 leo_pipeline = LeoPipeline(BASE_DIR)
 
 def decode_image(file):

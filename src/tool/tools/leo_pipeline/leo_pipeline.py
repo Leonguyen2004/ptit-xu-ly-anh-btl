@@ -7,7 +7,8 @@ from PIL import Image as PILImage
 
 # Add cnn directory to path to import CNNModel
 current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.dirname(os.path.dirname(current_dir))
+# Go up 4 levels: leo_pipeline -> tools -> tool -> src -> root
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(current_dir))))
 cnn_dir = os.path.join(project_root, 'src', 'cnn')
 if cnn_dir not in sys.path:
     sys.path.append(cnn_dir)

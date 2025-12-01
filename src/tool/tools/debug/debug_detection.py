@@ -1,15 +1,15 @@
 import sys
 import os
 
-# Add project root to sys.path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+# Add project root to sys.path (go up 5 levels: debug -> tools -> tool -> src -> root)
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))))
 
-from tools.detection.license_plate_detector import LicensePlateDetector
+from ..detection.license_plate_detector import LicensePlateDetector
 import cv2
 
 # Paths
-# Paths
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# BASE_DIR should point to project root (go up 5 levels)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 MODEL_PATH = os.path.join(BASE_DIR, "src", "weight", "character_detector.pt")
 IMAGE_PATH = os.path.join(BASE_DIR, "src", "character_cropper", "images", "car_2.jpg")
 
